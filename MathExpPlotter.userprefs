@@ -1,0 +1,12 @@
+﻿<Properties StartupItem="MathExpPlotter/MathExpPlotter.vcxproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x64" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="MathExpPlotter/Main.cpp">
+    <Files>
+      <File FileName="MathExpPlotter/Main.cpp" Line="29" Column="33" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

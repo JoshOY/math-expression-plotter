@@ -1,0 +1,16 @@
+﻿生成启动时间为 15/10/18 11:40:50。
+     1>项目“Z:\repo\MathExpPlotter\MathExpPlotter\MathExpPlotter.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         C:\Users\joshoy\apps\VisualStudio2015\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt Main.cpp
+         Main.cpp
+     1>z:\repo\mathexpplotter\mathexpplotter\main.cpp(42): warning C4302: “类型转换”: 从“LPWSTR”到“WORD”截断
+     1>z:\repo\mathexpplotter\mathexpplotter\main.cpp(47): warning C4302: “类型转换”: 从“LPWSTR”到“WORD”截断
+     1>z:\repo\mathexpplotter\mathexpplotter\main.cpp(33): warning C4101: “atom”: 未引用的局部变量
+       Link:
+         C:\Users\joshoy\apps\VisualStudio2015\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"Z:\repo\MathExpPlotter\Debug\MathExpPlotter.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"Z:\repo\MathExpPlotter\Debug\MathExpPlotter.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"Z:\repo\MathExpPlotter\Debug\MathExpPlotter.lib" /MACHINE:X86 Debug\Main.obj
+         MathExpPlotter.vcxproj -> Z:\repo\MathExpPlotter\Debug\MathExpPlotter.exe
+     1>已完成生成项目“Z:\repo\MathExpPlotter\MathExpPlotter\MathExpPlotter.vcxproj”(Build 个目标)的操作。
+
+已成功生成。
+
+已用时间 00:00:01.98
