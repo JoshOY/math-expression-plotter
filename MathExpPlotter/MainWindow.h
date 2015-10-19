@@ -1,14 +1,57 @@
 #pragma once
 
 #include <windows.h>
+#include <cmath>
+#include "GDIController.h"
+
+double test_f_sin(double x)
+{
+	return 50 * std::sin(0.05 * x);
+}
+
+double test_f_cos(double x)
+{
+	return 50 * std::cos(0.05 * x);
+}
+
+double test_f_line(double x)
+{
+	return x;
+}
+
 namespace MathExpPlotter
 {
 	auto g_szClassName = L"Math Expression Plotter";
 
 	LRESULT CALLBACK windowProcCallbackFunc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+		// GDIController *gdiCtrl = new GDIController(hwnd);
+		GDIController *gdiCtrl = nullptr;
+
 		switch (msg)
 		{
+		case WM_PAINT:
+			// gdiCtrl->DrawCross();
+			break;
+		case WM_LBUTTONDOWN:
+			/*hdc = BeginPaint(hwnd, &ps);
+			hpen = CreatePen(PS_SOLID, 2, RGB(0, 0, 0));
+			//选入画笔到设备环境
+			SelectObject(hdc, hpen);
+			MoveToEx(hdc, 150, 150, NULL);
+			LineTo(hdc, 200, 60);
+			LineTo(hdc, 250, 150);
+			LineTo(hdc, 150, 150);
+			EndPaint(hwnd, &ps);
+			DeleteObject(hpen);*/
+			// gdiCtrl->DrawCross();
+			gdiCtrl = new GDIController(hwnd);
+			gdiCtrl->DrawCross();
+			gdiCtrl->DrawFunction(&test_f_sin, RGB(255, 0, 0));
+			gdiCtrl->DrawFunction(&test_f_cos, RGB(0, 255, 0));
+			gdiCtrl->DrawFunction(&test_f_line, RGB(0, 0, 255));
+			delete gdiCtrl;
+			break;
 		case WM_CLOSE:
 			DestroyWindow(hwnd);
 			break;
@@ -16,10 +59,12 @@ namespace MathExpPlotter
 			PostQuitMessage(0);
 			break;
 		default:
+			delete gdiCtrl;
 			return DefWindowProc(hwnd, msg, wParam, lParam);
 		}
 		return 0;
 	}
+	
 
 	class WinMain
 	{
@@ -30,7 +75,7 @@ namespace MathExpPlotter
 			auto wc = this->wc;
 			wc.cbSize      = sizeof(WNDCLASSEX);
 			wc.style       = 0;
-			wc.lpfnWndProc = MathExpPlotter::windowProcCallbackFunc;
+			wc.lpfnWndProc = (MathExpPlotter::windowProcCallbackFunc);
 			wc.cbClsExtra  = 0;
 			wc.cbWndExtra  = 0;
 			wc.hInstance   = hInstance;
@@ -57,6 +102,8 @@ namespace MathExpPlotter
 				800, 600,
 				NULL, NULL, hInstance, NULL);
 		}
+
+		
 		
 		int CreateMainWindow()
 		{
@@ -82,6 +129,17 @@ namespace MathExpPlotter
 			return msg.wParam;
 		}
 
+		int _hdcInit()
+		{
+			this->hdc = BeginPaint(this->hwnd, &ps);
+			this->hpen = CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
+		}
+
+		int _hdcDestory()
+		{
+			DeleteObject(hpen);
+		}
+
 	private:
 		WNDCLASSEX wc;
 		HWND hwnd;
@@ -90,5 +148,10 @@ namespace MathExpPlotter
 		LPSTR lpCmdLine;
 		int nCmdShow;
 		MSG msg;
+
+		// GDI
+		HDC hdc;
+		PAINTSTRUCT ps;
+		HPEN hpen;
 	};
 }
