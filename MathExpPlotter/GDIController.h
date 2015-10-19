@@ -17,10 +17,11 @@ namespace MathExpPlotter
 	class GDIController
 	{
 	public:
-		GDIController(HWND hwnd, int winWidth = 800, int winHeight = 600,
+		GDIController(HWND hwnd, int space = 20, int winWidth = 800, int winHeight = 600,
 			          int startPointX = 0, int startPointY = 0)
 		{
 			this->hwnd = hwnd;
+			this->gridSpace = space;
 			this->winWidth = winWidth;
 			this->winHeight = winHeight;
 			this->winStartPointX = startPointX;
@@ -31,24 +32,20 @@ namespace MathExpPlotter
 		~GDIController()
 		{
 			SafeEndPaint();
-			if (hdcptr != nullptr)
-			{
+			if (hdcptr != nullptr) {
 				delete hdcptr;
 			}
-			if (!hPenDeleted)
-			{
+			if (!hPenDeleted) {
 				DeleteObject(hPen);
 			}
-			if (ps != nullptr)
-			{
+			if (ps != nullptr) {
 				delete ps;
 			}
 		}
 
 		void SafeCreatePen(int penStyle, int cWidth, COLORREF colorRef)
 		{
-			if (drawStarted == false)
-			{
+			if (drawStarted == false) {
 				// hPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
 				this->hPen = CreatePen(penStyle, cWidth, colorRef);
 				this->hPenDeleted = false;
@@ -63,8 +60,7 @@ namespace MathExpPlotter
 				*hdcptr = BeginPaint(hwnd, ps);
 				this->drawStarted = true;
 			}
-			else
-			{
+			else {
 				DeleteObject(hPen);
 				hPen = CreatePen(penStyle, cWidth, colorRef);
 			}
@@ -74,30 +70,42 @@ namespace MathExpPlotter
 
 		void SafeEndPaint()
 		{
-			if (!hPenDeleted)
-			{
+			if (!hPenDeleted) {
 				DeleteObject(hPen);
 				hPen = nullptr;
 				this->hPenDeleted = true;
 			}
 			
-			if (drawStarted)
-			{
+			if (drawStarted) {
 				EndPaint(hwnd, ps);
 				delete ps;
 				ps = nullptr;
 				drawStarted = false;
 			}
 
-			if (hdcptr != nullptr)
-			{
+			if (hdcptr != nullptr) {
 				delete hdcptr;
 				hdcptr = nullptr;
 			}
 		}
 
-		void DrawCross(COLORREF color = RGB(0, 0, 0))
+		void DrawCross(COLORREF color = RGB(0, 0, 0), COLORREF gridColor = RGB(176, 176, 176))
 		{
+
+			// Grey grid
+			SafeCreatePen(PS_SOLID, 1, gridColor);
+			// Rows
+			for (int i = 0; i < (winHeight / this->gridSpace); i++) {
+				MoveToEx(*hdcptr, winStartPointX, winStartPointY + gridSpace * i, NULL);
+				LineTo(*hdcptr, winStartPointX + winWidth, winStartPointY + gridSpace * i);
+			}
+			// Columns
+			for (int i = 0; i < (winWidth / this->gridSpace); i++) {
+				MoveToEx(*hdcptr, winStartPointX + gridSpace * i, winStartPointY, NULL);
+				LineTo(*hdcptr, winStartPointX + gridSpace * i, winStartPointY + winHeight);
+			}
+
+			// Cross
 			SafeCreatePen(PS_SOLID, 1, color);
 
 			// Axis X
@@ -107,7 +115,6 @@ namespace MathExpPlotter
 			MoveToEx(*hdcptr, winStartPointX + winWidth / 2, winStartPointY, NULL);
 			LineTo(*hdcptr, winStartPointX + winWidth / 2, winStartPointY + winHeight);
 
-			// SafeEndPaint();
 		}
 
 		void DrawFunction(MathFunc f, COLORREF color = RGB(0, 0, 0))
@@ -117,23 +124,19 @@ namespace MathExpPlotter
 			SafeCreatePen(PS_SOLID, 1, color);
 
 			vector<Point> pointSet = GetPointList(f);
-			for (int x = 0; x < pointSet.size(); x++)
-			{
-				if (x == 0)
-				{
+			for (int x = 0; x < pointSet.size(); x++) {
+				if (x == 0) {
 					MoveToEx(*hdcptr, winStartPointX, winStartPointY + winHeight / 2 - pointSet[x].y, NULL);
 				}
 				LineTo(*hdcptr, winStartPointX + x, winStartPointY + winHeight / 2 - pointSet[x].y);
 			}
-
 			// SafeEndPaint();
 		}
 
 		vector<Point> GetPointList(MathFunc f)
 		{
 			vector<Point> pointVec;
-			for (int i = -winWidth / 2; i < winWidth / 2; i++)
-			{
+			for (int i = -winWidth / 2; i < winWidth / 2; i++) {
 				double x = double(i);
 				pointVec.push_back(Point{int(x), int(f(x))});
 			}
@@ -151,6 +154,7 @@ namespace MathExpPlotter
 		int winStartPointY;
 		int winWidth;
 		int winHeight;
+		int gridSpace;
 
 		HDC *hdcptr = nullptr;
 		PAINTSTRUCT *ps = nullptr;

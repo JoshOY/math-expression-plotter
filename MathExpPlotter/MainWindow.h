@@ -28,8 +28,7 @@ namespace MathExpPlotter
 		// GDIController *gdiCtrl = new GDIController(hwnd);
 		GDIController *gdiCtrl = nullptr;
 
-		switch (msg)
-		{
+		switch (msg) {
 		case WM_PAINT:
 			// gdiCtrl->DrawCross();
 			break;
@@ -86,8 +85,7 @@ namespace MathExpPlotter
 			wc.lpszClassName = MathExpPlotter::g_szClassName;
 			wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
-			if (!RegisterClassEx(&wc))
-			{
+			if (!RegisterClassEx(&wc)) {
 				MessageBox(NULL, L"Window Registration Failed!", L"Error!", MB_ICONEXCLAMATION | MB_OK);
 				return;
 			}
@@ -107,8 +105,7 @@ namespace MathExpPlotter
 		
 		int CreateMainWindow()
 		{
-			if (hwnd == NULL)
-			{
+			if (hwnd == NULL) {
 				MessageBox(NULL, L"Window Creation Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
 				return -1;
 			}
@@ -121,8 +118,7 @@ namespace MathExpPlotter
 
 		int _messageLoop()
 		{
-			while (GetMessage(&msg, NULL, 0, 0) > 0)
-			{
+			while (GetMessage(&msg, NULL, 0, 0) > 0) {
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
