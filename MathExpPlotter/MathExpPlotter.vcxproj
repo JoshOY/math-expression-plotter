@@ -142,9 +142,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CanavsController.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CanvasController.h" />
     <ClInclude Include="GDIController.h" />
     <ClInclude Include="MainWindow.h" />
   </ItemGroup>

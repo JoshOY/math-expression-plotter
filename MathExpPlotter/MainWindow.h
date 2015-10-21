@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <cmath>
 #include "GDIController.h"
+#include "CanvasController.h"
 
 double test_f_sin(double x)
 {
@@ -26,30 +27,17 @@ namespace MathExpPlotter
 	LRESULT CALLBACK windowProcCallbackFunc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		// GDIController *gdiCtrl = new GDIController(hwnd);
-		GDIController *gdiCtrl = nullptr;
+		// GDIController *gdiCtrl = nullptr;
+		CanvasController *canvasCtrl = nullptr;
 
 		switch (msg) {
 		case WM_PAINT:
 			// gdiCtrl->DrawCross();
+			canvasCtrl = new CanvasController(hwnd, 0, 0, 800, 600, 10, 1.0, 5, 0, 0);
+			canvasCtrl->drawAxis(0x000000, 0xcccccc);
+			delete canvasCtrl;
 			break;
 		case WM_LBUTTONDOWN:
-			/*hdc = BeginPaint(hwnd, &ps);
-			hpen = CreatePen(PS_SOLID, 2, RGB(0, 0, 0));
-			//选入画笔到设备环境
-			SelectObject(hdc, hpen);
-			MoveToEx(hdc, 150, 150, NULL);
-			LineTo(hdc, 200, 60);
-			LineTo(hdc, 250, 150);
-			LineTo(hdc, 150, 150);
-			EndPaint(hwnd, &ps);
-			DeleteObject(hpen);*/
-			// gdiCtrl->DrawCross();
-			gdiCtrl = new GDIController(hwnd);
-			gdiCtrl->DrawCross();
-			gdiCtrl->DrawFunction(&test_f_sin, RGB(255, 0, 0));
-			gdiCtrl->DrawFunction(&test_f_cos, RGB(0, 255, 0));
-			gdiCtrl->DrawFunction(&test_f_line, RGB(0, 0, 255));
-			delete gdiCtrl;
 			break;
 		case WM_CLOSE:
 			DestroyWindow(hwnd);
@@ -58,7 +46,7 @@ namespace MathExpPlotter
 			PostQuitMessage(0);
 			break;
 		default:
-			delete gdiCtrl;
+			// delete gdiCtrl;
 			return DefWindowProc(hwnd, msg, wParam, lParam);
 		}
 		return 0;

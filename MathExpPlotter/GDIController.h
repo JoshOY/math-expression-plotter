@@ -89,7 +89,8 @@ namespace MathExpPlotter
 			}
 		}
 
-		void DrawCross(COLORREF color = RGB(0, 0, 0), COLORREF gridColor = RGB(176, 176, 176))
+		/*
+		void DrawCross_Old(COLORREF color = RGB(0, 0, 0), COLORREF gridColor = RGB(176, 176, 176))
 		{
 
 			// Grey grid
@@ -117,7 +118,7 @@ namespace MathExpPlotter
 
 		}
 
-		void DrawFunction(MathFunc f, COLORREF color = RGB(0, 0, 0))
+		void DrawFunction_Old(MathFunc f, COLORREF color = RGB(0, 0, 0))
 		{
 			// DrawCross();
 			
@@ -133,7 +134,7 @@ namespace MathExpPlotter
 			// SafeEndPaint();
 		}
 
-		vector<Point> GetPointList(MathFunc f)
+		vector<Point> GetPointList_Old(MathFunc f)
 		{
 			vector<Point> pointVec;
 			for (int i = -winWidth / 2; i < winWidth / 2; i++) {
@@ -142,11 +143,9 @@ namespace MathExpPlotter
 			}
 			return pointVec;
 		}
+		*/
 
-		double test_exp(double x)
-		{
-			return x * x;
-		}
+
 
 	private:
 		HWND hwnd;
