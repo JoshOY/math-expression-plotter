@@ -26,6 +26,8 @@ namespace MathExpPlotter
 		CanvasController(HWND _hwnd);
 		~CanvasController();
 		void drawAxis(COLORREF colorAxis, COLORREF colorGrid);
+		void drawFunction(PlotFunc f, COLORREF lineColor);
+		void drawFunction(PlotFunc f, COLORREF lineColor, double rangeStart, double rangeEnd);
 
 	private:
 		HWND hwnd;

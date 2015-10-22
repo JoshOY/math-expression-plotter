@@ -21,6 +21,9 @@
     <ClCompile Include="CanavsController.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="MathExp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GDIController.h">
@@ -30,6 +33,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CanvasController.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MathExp.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -12,12 +12,17 @@ double test_f_sin(double x)
 
 double test_f_cos(double x)
 {
-	return 50 * std::cos(0.05 * x);
+	return 3.1415926 * std::cos(x);
 }
 
 double test_f_line(double x)
 {
 	return x;
+}
+
+double f_x_cube(double x)
+{
+	return x * x * x;
 }
 
 namespace MathExpPlotter
@@ -33,8 +38,10 @@ namespace MathExpPlotter
 		switch (msg) {
 		case WM_PAINT:
 			// gdiCtrl->DrawCross();
-			canvasCtrl = new CanvasController(hwnd, 0, 0, 800, 600, 10, 1.0, 5, 0, 0);
+			canvasCtrl = new CanvasController(hwnd, 0, 0, 800, 600, 10, 0.31415926, 10, -80, -20);
 			canvasCtrl->drawAxis(0x000000, 0xcccccc);
+			canvasCtrl->drawFunction(&test_f_cos, 0xFF00FF);
+			canvasCtrl->drawFunction(&f_x_cube, 0x0000FF);
 			delete canvasCtrl;
 			break;
 		case WM_LBUTTONDOWN:
@@ -88,7 +95,6 @@ namespace MathExpPlotter
 				800, 600,
 				NULL, NULL, hInstance, NULL);
 		}
-
 		
 		
 		int CreateMainWindow()
