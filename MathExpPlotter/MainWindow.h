@@ -1,6 +1,7 @@
 #pragma once
 
 #include <windows.h>
+#include <iostream>
 #include <cmath>
 #include "GDIController.h"
 #include "CanvasController.h"
@@ -25,6 +26,31 @@ double f_x_cube(double x)
 	return x * x * x;
 }
 
+double f_1_x(double x) {
+	/*if (x == 0.0) {
+		return INT_MAX;
+	}*/
+	return 1.0 / x;
+}
+
+static bool paramChanged = true;
+static double xPerGrid = 1.0;
+static short zDelta;
+
+
+void draw(HWND hwnd)
+{
+	MathExpPlotter::CanvasController *canvasCtrl = nullptr;
+	canvasCtrl = new MathExpPlotter::CanvasController(hwnd, 0, 0, 800, 600, 10, xPerGrid, 10, -80, -20);
+	canvasCtrl->drawAxis(0x000000, 0xcccccc);
+	canvasCtrl->drawFunction(&test_f_cos, 0xFF00FF);
+	canvasCtrl->drawFunction(&f_x_cube, 0x0000FF);
+	canvasCtrl->drawFunction(&f_1_x, 0xF00FF0);
+	delete canvasCtrl;
+}
+
+
+
 namespace MathExpPlotter
 {
 	auto g_szClassName = L"Math Expression Plotter";
@@ -33,24 +59,42 @@ namespace MathExpPlotter
 	{
 		// GDIController *gdiCtrl = new GDIController(hwnd);
 		// GDIController *gdiCtrl = nullptr;
-		CanvasController *canvasCtrl = nullptr;
+		
 
 		switch (msg) {
 		case WM_PAINT:
 			// gdiCtrl->DrawCross();
-			canvasCtrl = new CanvasController(hwnd, 0, 0, 800, 600, 10, 0.31415926, 10, -80, -20);
-			canvasCtrl->drawAxis(0x000000, 0xcccccc);
-			canvasCtrl->drawFunction(&test_f_cos, 0xFF00FF);
-			canvasCtrl->drawFunction(&f_x_cube, 0x0000FF);
-			delete canvasCtrl;
+			if (paramChanged) {
+				draw(hwnd);
+				paramChanged = false;
+			}
 			break;
 		case WM_LBUTTONDOWN:
+			std::cout << "Left Mouse Button clicked." << std::endl;
+			// draw(hwnd);
 			break;
 		case WM_CLOSE:
 			DestroyWindow(hwnd);
 			break;
 		case WM_DESTROY:
 			PostQuitMessage(0);
+			break;
+		case WM_MOUSEWHEEL:
+			zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+			if (zDelta < 0) {
+				xPerGrid *= 1.25;
+				if (xPerGrid > 0xFFFFFFFF) {
+					xPerGrid /= 2;
+				}
+			}
+			else {
+				xPerGrid /= 1.25;
+				if (xPerGrid <  0.00000000000000005) {
+					xPerGrid *= 1.25;
+				}
+			}
+			paramChanged = true;
+			draw(hwnd);
 			break;
 		default:
 			// delete gdiCtrl;

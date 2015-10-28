@@ -30,12 +30,24 @@ CanvasController::CanvasController(
 	ps_ptr = nullptr;
 	ps_ptr = new PAINTSTRUCT;
 
-	hdc = ::BeginPaint(hwnd, ps_ptr);
+	hdc = ::GetDC(hwnd);
+
+	hpen = ::CreatePen(PS_SOLID, 1, 0xFFFFFF);
+	HBRUSH hbrush = CreateSolidBrush(0xFFFFFF);
+	
+	::SelectObject(hdc, hpen);
+	::SelectObject(hdc, hbrush);
+
+	::Rectangle(hdc, canvasPosLeft, canvasPosTop, canvasWidth, canvasHeight);
+
+	::DeleteObject(hpen);
+	::DeleteObject(hbrush);
 }
 
 CanvasController::~CanvasController()
 {
-	::EndPaint(hwnd, ps_ptr);
+	// ::EndPaint(hwnd, ps_ptr);
+	::ReleaseDC(hwnd, hdc);
 	if (ps_ptr != nullptr) {
 		delete ps_ptr;
 		ps_ptr = nullptr;
