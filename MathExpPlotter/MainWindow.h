@@ -5,6 +5,8 @@
 #include <cmath>
 #include "GDIController.h"
 #include "CanvasController.h"
+#include <windowsx.h>
+
 
 double test_f_sin(double x)
 {
@@ -36,12 +38,13 @@ double f_1_x(double x) {
 static bool paramChanged = true;
 static double xPerGrid = 1.0;
 static short zDelta;
-
+static int offsetX = 0;
+static int offsetY = 0;
 
 void draw(HWND hwnd)
 {
 	MathExpPlotter::CanvasController *canvasCtrl = nullptr;
-	canvasCtrl = new MathExpPlotter::CanvasController(hwnd, 0, 0, 800, 600, 10, xPerGrid, 10, -80, -20);
+	canvasCtrl = new MathExpPlotter::CanvasController(hwnd, 0, 0, 800, 600, 10, xPerGrid, 10, offsetX, offsetY);
 	canvasCtrl->drawAxis(0x000000, 0xcccccc);
 	canvasCtrl->drawFunction(&test_f_cos, 0xFF00FF);
 	canvasCtrl->drawFunction(&f_x_cube, 0x0000FF);
@@ -54,6 +57,10 @@ void draw(HWND hwnd)
 namespace MathExpPlotter
 {
 	auto g_szClassName = L"Math Expression Plotter";
+	bool lButtonDown = false;
+	int mouseX1, mouseY1, mouseX2, mouseY2;
+	int dx = 0, dy = 0;
+	WCHAR debug_buf[4096];
 
 	LRESULT CALLBACK windowProcCallbackFunc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
@@ -70,8 +77,30 @@ namespace MathExpPlotter
 			}
 			break;
 		case WM_LBUTTONDOWN:
-			std::cout << "Left Mouse Button clicked." << std::endl;
+			mouseX1 = GET_X_LPARAM(lParam);
+			mouseY1 = GET_Y_LPARAM(lParam);
+			lButtonDown = true;
+			break;
+		case WM_MOUSEMOVE:
 			// draw(hwnd);
+			if (lButtonDown) {
+				mouseX2 = GET_X_LPARAM(lParam);
+				mouseY2 = GET_Y_LPARAM(lParam);
+				dx = mouseX2 - mouseX1;
+				dy = mouseY2 - mouseY1;
+				mouseX1 = mouseX2;
+				mouseY1 = mouseY2;
+				wsprintf(debug_buf, L"DEBUG: dx = %d, dy = %d;\n", dx, dy);
+				OutputDebugString(debug_buf);
+
+				offsetX += dx;
+				offsetY += dy;
+				draw(hwnd);
+			}
+			break;
+
+		case WM_LBUTTONUP:
+			lButtonDown = false;
 			break;
 		case WM_CLOSE:
 			DestroyWindow(hwnd);
