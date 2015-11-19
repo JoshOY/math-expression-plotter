@@ -21,7 +21,10 @@
     <ClCompile Include="CanavsController.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MathExp.cpp">
+    <ClCompile Include="ExpParser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Expression.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,8 +38,19 @@
     <ClInclude Include="CanvasController.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="MathExp.h">
+    <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ExpParser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Expression.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

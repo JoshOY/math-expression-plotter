@@ -105,6 +105,67 @@ void CanvasController::drawFunction(PlotFunc f, COLORREF lineColor, double range
 }
 
 
+void CanvasController::drawFromParser(string exp, COLORREF lineColor, double rangeStart, double rangeEnd)
+{
+	if (rangeEnd < rangeStart) {
+		std::fprintf(stderr, "[ERROR]: Range invalid.\n");
+	}
+
+	HPEN hpen = ::CreatePen(PS_SOLID, 1, lineColor);
+	::SelectObject(hdc, hpen);
+
+	int zeroPointX = ((canvasPosLeft + canvasWidth) / 2) + offsetX;
+	int zeroPointY = ((canvasPosTop + canvasHeight) / 2) + offsetY;
+	double x_per_pixel = static_cast<double>(this->xPerGrid) / static_cast<double>(this->gridLength);
+
+	// Caculate min/max x value in canvas
+	double canvasMinX = static_cast<double>(this->canvasPosLeft - zeroPointX) * x_per_pixel;
+	double canvasMaxX = static_cast<double>(this->canvasWidth - zeroPointX) * x_per_pixel;
+	double canvasMinY = static_cast<double>(zeroPointY - this->canvasPosTop - this->canvasHeight) * x_per_pixel;
+	double canvasMaxY = static_cast<double>(zeroPointY) * x_per_pixel;
+
+	// If the range has already out of range of canvas (< min)
+	if (rangeEnd < canvasMinX) {
+		::DeleteObject(hpen);
+		return;
+	}
+	// If the range has already out of range of canvas (> max)
+	if (rangeStart > canvasMaxX) {
+		::DeleteObject(hpen);
+		return;
+	}
+
+	// Get actual drawing x range.
+	double real_x_max = (rangeEnd <= canvasMaxX) ? rangeEnd : canvasMaxX;
+	double real_x_min = (rangeStart >= canvasMinX) ? rangeStart : canvasMinX;
+
+	// Use parser to get.
+	auto parser = ExpParser(exp);
+	int drawing_width = static_cast<int>((real_x_max - real_x_min) / x_per_pixel);
+	parser.calculateValueFromRange(real_x_min, real_x_max, drawing_width);
+
+	// Draw the function.
+	// int startDrawPointX = static_cast<int>((parser.get_x_at(0) - canvasMinX) / x_per_pixel);
+	int px = zeroPointX + static_cast<int>(parser.get_x_at(0) / x_per_pixel);
+	int py = zeroPointY - static_cast<int>(parser.get_y_at(0) / x_per_pixel);
+	::MoveToEx(hdc, px, py, NULL);
+	double x, y;
+
+	int idx = 0;
+	for (idx = 0; canvasMinX + (static_cast<double>(px) * x_per_pixel) <= real_x_max; ++idx) {
+		x = parser.get_x_at(idx);
+		y = parser.get_y_at(idx);
+		if (x > canvasMaxX) {
+			break;
+		}
+		px += 1;
+		py = static_cast<int>(zeroPointY - static_cast<int>(y / x_per_pixel));
+		::LineTo(hdc, px, py);
+	}
+
+	::DeleteObject(hpen);
+}
+
 void CanvasController::drawAxis(COLORREF colorAxis, // = 0x000000
 							    COLORREF colorGrid) // = 0xCCCCCC
 {
@@ -130,13 +191,13 @@ void CanvasController::drawAxis(COLORREF colorAxis, // = 0x000000
 	::SelectObject(hdc, hpenGrid);
 
 	for (int i = 0; i < grid_num_horizontal; i++) {
-		::MoveToEx(hdc, canvasPosLeft, canvasPosTop + i * gridLength, NULL);
-		::LineTo(hdc, canvasPosLeft + canvasWidth, canvasPosTop + i * gridLength);
+		::MoveToEx(hdc, canvasPosLeft, canvasPosTop + i * gridLength + (offsetY % gridLength), NULL);
+		::LineTo(hdc, canvasPosLeft + canvasWidth, canvasPosTop + i * gridLength + (offsetY % gridLength));
 	}
 
 	for (int i = 0; i < grid_num_vertical; i++) {
-		::MoveToEx(hdc, canvasPosLeft + i * gridLength, canvasPosTop, NULL);
-		::LineTo(hdc, canvasPosLeft + i * gridLength, canvasPosTop + canvasHeight);
+		::MoveToEx(hdc, canvasPosLeft + i * gridLength + (offsetX % gridLength), canvasPosTop, NULL);
+		::LineTo(hdc, canvasPosLeft + i * gridLength + (offsetX % gridLength), canvasPosTop + canvasHeight);
 	}
 
 	::SelectObject(hdc, hpenAxis);

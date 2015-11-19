@@ -143,14 +143,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CanavsController.cpp" />
+    <ClCompile Include="ExpParser.cpp" />
+    <ClCompile Include="Expression.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="MathExp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CanvasController.h" />
+    <ClInclude Include="ExpParser.h" />
+    <ClInclude Include="Expression.h" />
     <ClInclude Include="GDIController.h" />
     <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="MathExp.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

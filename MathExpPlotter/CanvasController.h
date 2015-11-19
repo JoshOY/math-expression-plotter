@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include <vector>
+#include "ExpParser.h"
 
 using std::vector;
 typedef double(*PlotFunc)(double);
@@ -28,6 +29,7 @@ namespace MathExpPlotter
 		void drawAxis(COLORREF colorAxis, COLORREF colorGrid);
 		void drawFunction(PlotFunc f, COLORREF lineColor);
 		void drawFunction(PlotFunc f, COLORREF lineColor, double rangeStart, double rangeEnd);
+		void drawFromParser(string exp, COLORREF lineColor, double rangeStart, double rangeEnd);
 
 	private:
 		HWND hwnd;

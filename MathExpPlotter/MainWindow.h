@@ -3,55 +3,48 @@
 #include <windows.h>
 #include <iostream>
 #include <cmath>
+#include <atlstr.h>
 #include "GDIController.h"
 #include "CanvasController.h"
+#include "resource.h"
 #include <windowsx.h>
+#include "ExpParser.h"
+#include "Expression.h"
 
-
-double test_f_sin(double x)
-{
-	return 50 * std::sin(0.05 * x);
-}
-
-double test_f_cos(double x)
-{
-	return 3.1415926 * std::cos(x);
-}
-
-double test_f_line(double x)
-{
-	return x;
-}
-
-double f_x_cube(double x)
-{
-	return x * x * x;
-}
-
-double f_1_x(double x) {
-	/*if (x == 0.0) {
-		return INT_MAX;
-	}*/
-	return 1.0 / x;
-}
+void removeExpressionByIndex(int idx);
 
 static bool paramChanged = true;
 static double xPerGrid = 1.0;
 static short zDelta;
 static int offsetX = 0;
 static int offsetY = 0;
+static Expression ** exp_list;
+static int exp_added = 0;
 
+
+// Dialog global variables
+static int exp_list_idx = -1;
+
+// Drawing Function, execute when moving, scaling or adding new function
 void draw(HWND hwnd)
 {
 	MathExpPlotter::CanvasController *canvasCtrl = nullptr;
 	canvasCtrl = new MathExpPlotter::CanvasController(hwnd, 0, 0, 800, 600, 10, xPerGrid, 10, offsetX, offsetY);
 	canvasCtrl->drawAxis(0x000000, 0xcccccc);
-	canvasCtrl->drawFunction(&test_f_cos, 0xFF00FF);
-	canvasCtrl->drawFunction(&f_x_cube, 0x0000FF);
-	canvasCtrl->drawFunction(&f_1_x, 0xF00FF0);
+
+	for (auto i = 0; i < exp_added; ++i) {
+		if (exp_list[i] == nullptr) {
+			continue;
+		}
+		canvasCtrl->drawFromParser(
+			exp_list[i]->exp_str,
+			exp_list[i]->exp_color,
+			exp_list[i]->rangeStart,
+			exp_list[i]->rangeEnd
+		);
+	}
 	delete canvasCtrl;
 }
-
 
 
 namespace MathExpPlotter
@@ -66,9 +59,16 @@ namespace MathExpPlotter
 	{
 		// GDIController *gdiCtrl = new GDIController(hwnd);
 		// GDIController *gdiCtrl = nullptr;
-		
+
+		int wmId, wmEvent;
 
 		switch (msg) {
+		case WM_SIZE:
+		case WM_SETFOCUS:
+		case WM_MOVE:
+			draw(hwnd);
+			paramChanged = false;
+			break;
 		case WM_PAINT:
 			// gdiCtrl->DrawCross();
 			if (paramChanged) {
@@ -132,12 +132,76 @@ namespace MathExpPlotter
 		return 0;
 	}
 	
+	BOOL CALLBACK SettingsDialogProc(
+		HWND hwnd,      // 当前窗口句柄
+		UINT Message,   // 收到的windows消息ID
+		WPARAM wParam,  // 消息参数1
+		LPARAM lParam)  // 消息参数2
+	{
+		int wmId, wmEvent;
+		LPTSTR lbuf = new WCHAR[2048];
+		HWND hList = ::GetDlgItem(hwnd, IDC_LIST_EXP);
+		
+
+		switch (Message) {
+		case WM_COMMAND:
+			wmId = LOWORD(wParam);
+			wmEvent = HIWORD(wParam);
+			// 低字段
+			switch (wmId) {
+			// 添加函数
+			case IDC_EXP_ADD:
+				::wsprintf(debug_buf, L"点击添加按钮。\n");
+				::OutputDebugString(debug_buf);
+				::GetDlgItemText(hwnd, IDC_EDIT_EXP, lbuf, 2048);
+				::OutputDebugString(lbuf);
+				exp_list[exp_added] = new Expression(std::string(CW2A(lbuf)), exp_added, 0x66ccff, -1000, 1000);
+				exp_added += 1;
+				paramChanged = true;
+				// Send message to item list dialog
+				::SendDlgItemMessage(hwnd, IDC_LIST_EXP, LB_ADDSTRING, 0, (LPARAM)(lbuf));
+				break;
+			case IDC_LIST_EXP:
+				// IDC_EXP_LIST 高字段
+				switch (wmEvent) {
+				// 选择函数
+				case LBN_SELCHANGE:
+					exp_list_idx = ::SendMessage(hList, LB_GETCURSEL, 0, 0);
+					::wsprintf(debug_buf, L"Label selection changed to %d.\n", exp_list_idx);
+					::OutputDebugString(debug_buf);
+					break;
+				default:
+					break;
+				}
+				break;
+			case IDC_DELETE_EXP:
+				// 删除指定表达式
+				if (exp_list_idx < 0) {
+					break;
+				}
+				else {
+					removeExpressionByIndex(exp_list_idx);
+					::SendMessage(hList, LB_DELETESTRING, exp_list_idx, NULL);
+					paramChanged = false;
+				}
+				break;
+			default:
+				break;
+			}
+			
+			break;
+		}
+
+		delete lbuf;
+		return 0;
+	}
 
 	class WinMain
 	{
 	public:
-		WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow):
-			hInstance(hInstance), hPrevInstance(hPrevInstance), lpCmdLine(lpCmdLine), nCmdShow(nCmdShow)
+		WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
+			int nCmdShow, int windowWidth = 800, int windowHeight = 600):
+			hInstance(hInstance), hPrevInstance(hPrevInstance), lpCmdLine(lpCmdLine), nCmdShow(nCmdShow), winWidth(windowWidth), winHeight(windowHeight)
 		{
 			auto wc = this->wc;
 			wc.cbSize      = sizeof(WNDCLASSEX);
@@ -165,7 +229,7 @@ namespace MathExpPlotter
 				WS_OVERLAPPEDWINDOW,
 				CW_USEDEFAULT,
 				CW_USEDEFAULT,
-				800, 600,
+				winWidth, winHeight,
 				NULL, NULL, hInstance, NULL);
 		}
 		
@@ -173,12 +237,25 @@ namespace MathExpPlotter
 		int CreateMainWindow()
 		{
 			if (hwnd == NULL) {
-				MessageBox(NULL, L"Window Creation Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
+				::MessageBox(NULL, L"Window Creation Failed!", L"Error", MB_ICONEXCLAMATION | MB_OK);
 				return -1;
 			}
 
+			/*
+			hBtnOption = ::CreateWindow(TEXT("button"), TEXT("这是按钮"),
+				WS_CHILD | WS_VISIBLE | WS_BORDER | BS_FLAT,
+				winWidth - 200, winHeight - 100, 150, 50,
+				hwnd, (HMENU)2, NULL, NULL
+			);
+			*/
+
 			ShowWindow(hwnd, nCmdShow);
+			
+			HWND mainDialogHwnd = ::CreateDialog(hInstance, MAKEINTRESOURCE(IDD_DIALOG_SETTINGS), NULL, SettingsDialogProc);
+			ShowWindow(mainDialogHwnd, nCmdShow);
+
 			UpdateWindow(hwnd);
+			UpdateWindow(hBtnOption);
 
 			return _messageLoop();
 		}
@@ -205,16 +282,44 @@ namespace MathExpPlotter
 
 	private:
 		WNDCLASSEX wc;
-		HWND hwnd;
-		HINSTANCE hInstance;
-		HINSTANCE hPrevInstance;
-		LPSTR lpCmdLine;
-		int nCmdShow;
-		MSG msg;
+		HWND       hwnd;
+		HINSTANCE  hInstance;
+		HINSTANCE  hPrevInstance;
+		LPSTR      lpCmdLine;
+		int        nCmdShow;
+		MSG        msg;
 
 		// GDI
-		HDC hdc;
+		HDC         hdc;
 		PAINTSTRUCT ps;
-		HPEN hpen;
+		HPEN        hpen;
+
+		// Option Button
+		HWND hBtnOption;
+
+		int winHeight;
+		int winWidth;
 	};
+}
+
+void removeExpressionByIndex(int idx)
+{
+	int rm_idx = idx;
+	int pass_idx_count = 0;
+	for (auto i = 0; i < exp_added; i++) {
+		if (exp_list[i] != nullptr) {
+			pass_idx_count += 1;
+			if (pass_idx_count == idx + 1) {
+				rm_idx = i;
+				break;
+			}
+		}
+		else {
+			continue;
+		}
+	}
+
+	delete exp_list[rm_idx];
+	exp_list[rm_idx] = nullptr;
+	return;
 }
